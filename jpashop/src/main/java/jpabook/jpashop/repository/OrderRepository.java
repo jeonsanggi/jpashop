@@ -8,9 +8,6 @@ import org.springframework.util.StringUtils;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
 import java.util.List;
 
 @Repository
@@ -20,15 +17,15 @@ public class OrderRepository {
     @PersistenceContext
     private final EntityManager em;
 
-    public void save(Order order){
-         em.persist(order);
+    public void save(Order order) {
+        em.persist(order);
     }
 
-    public Order findOne(Long id){
+    public Order findOne(Long id) {
         return em.find(Order.class, id);
     }
 
-    public List<Order> findAll(OrderSearch orderSearch){
+    public List<Order> findAll(OrderSearch orderSearch) {
         String jpql = "select o From Order o join o.member m";
         boolean isFirstCondition = true;
         //주문 상태 검색
@@ -69,5 +66,12 @@ public class OrderRepository {
                         " join fetch o.member m" +
                         " join fetch o.delivery d", Order.class
         ).getResultList();
+    }
+
+    public List<OrderSimpleQueryDto> findOrderDtos() {
+        return em.createQuery("select new jpabook.jpashop.repository.OrderSimpleQueryDto(o.id, m.name, o.orderDate, o.status, d.address) from Order o" +
+                " join o.member m" +
+                " join o.delivery d", OrderSimpleQueryDto.class)
+                .getResultList();
     }
 }
